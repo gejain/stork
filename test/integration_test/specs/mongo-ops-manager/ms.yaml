@@ -1,0 +1,15 @@
+---
+apiVersion: mongodb.com/v1
+kind: MongoDBOpsManager
+metadata:
+  name: myopsmanager
+spec:
+  replicas: 1
+  version: 6.0.0
+  adminCredentials: admincred
+  externalConnectivity:
+    type: LoadBalancer
+  applicationDatabase:
+    members: 3
+    version: 5.0.5-ent
+...
