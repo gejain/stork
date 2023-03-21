@@ -1,0 +1,24 @@
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: fio-sc
+parameters:
+  skuName: Standard_LRS
+  location: eastus
+provisioner: kubernetes.io/azure-disk
+volumeBindingMode: Immediate
+allowVolumeExpansion: true
+---
+##### GCE storage class
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: fio-log
+parameters:
+  skuName: Standard_LRS
+  location: eastus
+provisioner: kubernetes.io/azure-disk
+volumeBindingMode: Immediate
+allowVolumeExpansion: true
+
