@@ -153,10 +153,26 @@ func triggerMigration(
 	if migrateAllAppsExpected {
 		preMigrationCtx = ctxs[0].DeepCopy()
 	}
-	// create, apply and validate cluster pair specs
-	err = scheduleClusterPair(ctxs[0], skipStoragePair, true, defaultClusterPairDir, projectIDMappings, pairReverse)
-	require.NoError(t, err, "Error scheduling cluster pair")
 
+	clusterPairName := "remoteclusterpair"
+	clusterPairNamespace := ""
+	for _, spec := range ctxs[0].App.SpecList {
+		if obj, ok := spec.(*apps_api.StatefulSet); ok {
+			clusterPairNamespace = obj.GetNamespace()
+		} else if obj, ok := spec.(*apps_api.Deployment); ok {
+			clusterPairNamespace = obj.GetNamespace()
+		}
+		break
+	}
+
+	// create, apply and validate cluster pair specs
+	if !bidirectionalClusterpair {
+		err = scheduleClusterPair(ctxs[0], skipStoragePair, true, defaultClusterPairDir, projectIDMappings, pairReverse)
+		require.NoError(t, err, "Error scheduling cluster pair")
+	} else {
+		err := scheduleBidirectionalClusterPair(clusterPairName, clusterPairNamespace, "", storkv1.BackupLocationType("s3"), "s3secret")
+		require.NoError(t, err, "failed to set idirectional cluster pair: %v", err)
+	}
 	// apply migration specs
 	err = schedulerDriver.AddTasks(ctxs[0],
 		scheduler.ScheduleOptions{AppKeys: migrationAppKeys})
